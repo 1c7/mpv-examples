@@ -1,0 +1,8 @@
+test.mkv
+# 测试用的视频文件不能提交（太大了）
+
+cocoa-rendergl
+cocoabasic
+# 编译后的文件也不用提交
+
+.DS_Store
