@@ -1,4 +1,5 @@
 // Build with: g++ -o main main.cpp `wx-config-gtk3 --libs --cxxflags` `pkg-config --cflags --libs gtk+-3.0` -lmpv
+// brew install gtk+3
 
 #include "main.h"
 

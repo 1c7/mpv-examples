@@ -1,6 +1,7 @@
 # Client API examples
 
 All these examples use the mpv client API through libmpv.
+所有这些例子都是用 libmpv 来使用 mpv 的客户端 API
 
 ## Where are the docs?
 
@@ -26,9 +27,14 @@ because it would require conversion on the CPU. The goal is also not requiring
 the API users to reinvent their own video rendering/scaling/presentation
 mechanisms.
 
+所有这些例子的重点，都是怎么整合 mpv 的视频渲染到你的 GUI 里头，
+一般来说这是最难的部分。
+（省略后面一部分）
+
 There are currently 2 methods of embedding video.
 
-### Native window embedding
+### Native window embedding 窗口嵌套
+简而言之，这个方法不好。macOS 上有问题
 
 This uses the platform's native method of nesting multiple windows. For example,
 Linux/X11 can nest a window from a completely different process. The nested
@@ -58,14 +64,22 @@ This method lets you use libmpv's OpenGL renderer directly. You create an
 OpenGL context, and then use `mpv_render_context_render()` to render the video
 on each frame. (This can be OpenGL emulation as well, such as with ANGLE.)
 
+这个方法是直接用 libmpv 的 OpenGL  渲染器。
+创建一个 OpenGL context, 然后调用 `mpv_render_context_render()` 来渲染视频
+
 This is more complicated, because libmpv will work directly on your own OpenGL
 state. It's also not possible to have mpv automatically receive user input.
 You will have to simulate this with the `mouse`/`keypress`/`keydown`/`keyup`
 commands.
 
+这个复杂一些，因为 libmpv 会直接在你的  OpenGL 状态上工作。
+也不可能直接接收用户输入，你需要自己模拟。
+
 You also get much more flexibility. For example, you can actually render your
 own OSD on top of the video, something that is not possible with raw window
 embedding.
+
+这样灵活度更高，比如你可以自己在视频上方渲染 OSD
 
 ### Deprecated opengl-cb API
 
@@ -82,6 +96,8 @@ OSX), using the render API is currently recommended over window embedding. In
 some cases, window embedding can be preferable, because it is simpler and has
 no disadvantages for the specific use case.
 
+建议用 render API，而不是 window embedding   
+
 If you're not comfortable with the higher complexity and requirements on the
 GPU, or window embedding happens to work fine for your use case, or you want
 to support "direct" video output such as vdpau (which might win when it comes
@@ -93,10 +109,12 @@ if possible.
 ### simple
 
 Very primitive terminal-only example. Shows some most basic API usage.
+非常基础的命令行例子，演示最基本的 API 使用
 
 ### cocoa
 
 Shows how to embed the mpv video window in Objective-C/Cocoa.
+演示 Objective-C/Cocoa 里面怎么嵌入 mpv 视频窗口
 
 ### cocoa-openglcb
 
@@ -138,6 +156,8 @@ video is not a normal QML element. Uses the opengl-cb API for video.
 
 Show how to embed the mpv OpenGL renderer in SDL. Uses the render API for video.
 In addition, main_sw demonstrates the render API software renderer.
+
+演示怎么把 mpv 的 OpenGL 渲染器弄到 SDL 里面
 
 ### streamcb
 

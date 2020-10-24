@@ -2,6 +2,12 @@
 // application.
 
 // Build with: clang -o cocoabasic cocoabasic.m `pkg-config --libs --cflags mpv` -framework cocoa
+// 2020年10月25号在 macOS 上编译成功，得到一个同名无后缀文件
+// 这条编译命令还有一部分不懂，需要学一下
+
+// 运行: ./cocoabasic test.mkv 
+// 可以正常播放，完全没有问题
+// 缺点是 OC 挺烦的
 
 #include <mpv/client.h>
 

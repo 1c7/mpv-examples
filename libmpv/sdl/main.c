@@ -1,4 +1,8 @@
 // Build with: gcc -o main main.c `pkg-config --libs --cflags mpv sdl2` -std=c99
+// 2020年10月25号，macOS 上可以编译，没有问题
+
+// 运行 ./main test.mkv
+// 可以正常播放，没有问题
 
 #include <stddef.h>
 #include <stdio.h>

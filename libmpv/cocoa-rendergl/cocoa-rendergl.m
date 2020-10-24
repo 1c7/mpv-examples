@@ -1,6 +1,10 @@
 // Plays a video from the command line in an opengl view in its own window.
 
 // Build with: clang -o cocoa-rendergl cocoa-rendergl.m `pkg-config --libs --cflags mpv` -framework Cocoa -framework OpenGL
+// 2020年10月25号在 macOS 上编译成功，得到一个同名无后缀文件
+
+// 运行 ./cocoa-rendergl test.mkv
+// 可以正常运行播放视频，完全没问题
 
 #import <mpv/client.h>
 #import <mpv/render_gl.h>
