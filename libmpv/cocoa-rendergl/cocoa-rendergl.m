@@ -6,8 +6,11 @@
 // 运行 ./cocoa-rendergl test.mkv
 // 可以正常运行播放视频，完全没问题
 
+// 这个应该就真的是用 OpenGL 来播放了，值得学习
+
 #import <mpv/client.h>
 #import <mpv/render_gl.h>
+// 除了客户端 client.h 还引入了 render_gl.h
 
 #import <stdio.h>
 #import <stdlib.h>
@@ -24,6 +27,7 @@ static inline void check_error(int status)
     }
 }
 
+// 这是在干什么？
 static void *get_proc_address(void *ctx, const char *name)
 {
     CFStringRef symbolName = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
@@ -101,6 +105,7 @@ static void glupdate(void *ctx);
 }
 @end
 
+// 窗口
 @interface CocoaWindow : NSWindow
 @property(retain, readonly) MpvClientOGLView *glView;
 @property(retain, readonly) NSButton *pauseButton;
@@ -109,6 +114,7 @@ static void glupdate(void *ctx);
 @implementation CocoaWindow
 - (BOOL)canBecomeMainWindow { return YES; }
 - (BOOL)canBecomeKeyWindow { return YES; }
+// 注意这个方法
 - (void)initOGLView {
     NSRect bounds = [[self contentView] bounds];
     // window coordinate origin is bottom left
@@ -140,6 +146,7 @@ static void wakeup(void *);
 
 @implementation AppDelegate
 
+// 和前一个 cocobasic.m 文件的创建窗口函数差不多
 - (void)createWindow {
 
     int mask = NSWindowStyleMaskTitled|NSWindowStyleMaskClosable|
@@ -153,11 +160,13 @@ static void wakeup(void *);
 
     // force a minimum size to stop opengl from exploding.
     [window setMinSize:NSMakeSize(200, 200)];
+    // 为啥要设置最小大小？什么叫防止 explding？
     [window initOGLView];
-    [window setTitle:@"cocoa-rendergl example"];
+    [window setTitle:@"cocoa-rendergl example"]; // 窗口标题
     [window makeMainWindow];
     [window makeKeyAndOrderFront:nil];
 
+    // 菜单
     NSMenu *m = [[NSMenu alloc] initWithTitle:@"AMainMenu"];
     NSMenuItem *item = [m addItemWithTitle:@"Apple" action:nil keyEquivalent:@""];
     NSMenu *sm = [[NSMenu alloc] initWithTitle:@"Apple"];
@@ -199,6 +208,7 @@ static void wakeup(void *);
 
     check_error(mpv_initialize(mpv));
     check_error(mpv_set_option_string(mpv, "vo", "libmpv"));
+    // 这里初始化之后设置 video output
     
     mpv_render_param params[] = {
         {MPV_RENDER_PARAM_API_TYPE, MPV_RENDER_API_TYPE_OPENGL},
@@ -208,6 +218,7 @@ static void wakeup(void *);
         {0}
     };
     
+    // 创建 context 并保存
     mpv_render_context *mpvGL;
     if (mpv_render_context_create(&mpvGL, mpv, params) < 0) {
         puts("failed to initialize mpv GL context");
@@ -260,6 +271,7 @@ static void glupdate(void *ctx)
     }
 }
 
+// 按钮处理
 - (void)togglePause:(NSButton *)button
 {
     if (mpv) {
