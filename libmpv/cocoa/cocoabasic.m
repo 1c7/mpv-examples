@@ -9,7 +9,10 @@
 // 可以正常播放，完全没有问题
 // 缺点是 OC 挺烦的
 
+// 这个看起来就是 window embedding，没啥值得学习的
+
 #include <mpv/client.h>
+// 这个引入咋整的?
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,20 +34,23 @@ static inline void check_error(int status)
 - (BOOL)canBecomeMainWindow { return YES; }
 - (BOOL)canBecomeKeyWindow { return YES; }
 @end
+// 这里好像就是马上定义了一个 interface + 实现
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 {
-    mpv_handle *mpv;
-    dispatch_queue_t queue;
-    NSWindow *w;
-    NSView *wrapper;
+    mpv_handle *mpv; // 这个简单，就是 mpv 指针
+    dispatch_queue_t queue; // 不清楚为什么要用 queue
+    NSWindow *w; // 窗口 
+    NSView *wrapper; // view wrapper
 }
 @end
 
 static void wakeup(void *);
 
+// 实现 AppDelegate
 @implementation AppDelegate
 
+// 这个好像就是纯粹的创建窗口，没有别的
 - (void)createWindow {
 
     int mask = NSTitledWindowMask|NSClosableWindowMask|
@@ -55,10 +61,11 @@ static void wakeup(void *);
                   styleMask:mask
                     backing:NSBackingStoreBuffered
                       defer:NO];
+                    // 窗口大小
 
-    [self->w setTitle:@"cocoabasic example"];
-    [self->w makeMainWindow];
-    [self->w makeKeyAndOrderFront:nil];
+    [self->w setTitle:@"cocoabasic example"]; // 标题
+    [self->w makeMainWindow]; // 主窗口
+    [self->w makeKeyAndOrderFront:nil]; // 放到前面
 
     NSRect frame = [[self->w contentView] bounds];
     self->wrapper = [[NSView alloc] initWithFrame:frame];
@@ -66,6 +73,7 @@ static void wakeup(void *);
     [[self->w contentView] addSubview:self->wrapper];
     [self->wrapper release];
 
+    // 菜单
     NSMenu *m = [[NSMenu alloc] initWithTitle:@"AMainMenu"];
     NSMenuItem *item = [m addItemWithTitle:@"Apple" action:nil keyEquivalent:@""];
     NSMenu *sm = [[NSMenu alloc] initWithTitle:@"Apple"];
@@ -87,6 +95,7 @@ static void wakeup(void *);
     });
 
     // Read filename
+    // 读取命令行文件名
     NSArray *args = [NSProcessInfo processInfo].arguments;
     if (args.count < 2) {
         NSLog(@"Expected filename on command line");
@@ -95,9 +104,11 @@ static void wakeup(void *);
     NSString *filename = args[1];
 
     [self createWindow];
+    // 创建窗口
 
     // Deal with MPV in the background.
     queue = dispatch_queue_create("mpv", DISPATCH_QUEUE_SERIAL);
+    // 这是创建队列？为啥说在后台和 mpv 交互
     dispatch_async(queue, ^{
 
         mpv = mpv_create();
@@ -105,9 +116,12 @@ static void wakeup(void *);
             printf("failed creating context\n");
             exit(1);
         }
+        // 直接创建 mpv 并且保存 handle
 
         int64_t wid = (intptr_t) self->wrapper;
+        // 这是拿到 window id？
         check_error(mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid));
+        // 似乎这就是一个 window embedding 的操作
 
         // Maybe set some options here, like default key bindings.
         // NOTE: Interaction with the window seems to be broken for now.
@@ -121,19 +135,23 @@ static void wakeup(void *);
         // request important errors
         check_error(mpv_request_log_messages(mpv, "warn"));
 
+        // 上面设置了一些选项，这里初始化
         check_error(mpv_initialize(mpv));
 
         // Register to be woken up whenever mpv generates new events.
         mpv_set_wakeup_callback(mpv, wakeup, (__bridge void *) self);
 
         // Load the indicated file
+        // 载入文件
         const char *cmd[] = {"loadfile", filename.UTF8String, NULL};
         check_error(mpv_command(mpv, cmd));
     });
 }
 
+// 处理事件
 - (void) handleEvent:(mpv_event *)event
 {
+    // 如果是关闭事件，直接退出
     switch (event->event_id) {
     case MPV_EVENT_SHUTDOWN: {
         mpv_detach_destroy(mpv);
@@ -142,6 +160,7 @@ static void wakeup(void *);
         break;
     }
 
+    // 其他几个事件的处理
     case MPV_EVENT_LOG_MESSAGE: {
         struct mpv_event_log_message *msg = (struct mpv_event_log_message *)event->data;
         printf("[%s] %s: %s", msg->prefix, msg->level, msg->text);
@@ -163,6 +182,7 @@ static void wakeup(void *);
     }
 }
 
+// 这是干嘛？event loop？
 - (void) readEvents
 {
     dispatch_async(queue, ^{
@@ -186,6 +206,7 @@ static void wakeup(void *context) {
     return NO;
 }
 
+// 这2个和菜单项相关
 - (void) mpv_stop
 {
     if (mpv) {
@@ -210,6 +231,9 @@ int main(int argc, const char * argv[]) {
         AppDelegate *delegate = [AppDelegate new];
         app.delegate = delegate;
         [app run];
+        // 看起来是，弄了个 application, 弄了个 delegate
+        // 让 application.delegate 设置一下
+        // run
     }
     return 0;
 }
