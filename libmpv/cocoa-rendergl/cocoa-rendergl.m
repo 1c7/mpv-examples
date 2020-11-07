@@ -117,17 +117,22 @@ static void glupdate(void *ctx);
 // 注意这个方法
 - (void)initOGLView {
     NSRect bounds = [[self contentView] bounds];
+    // 整个 bounds 大小
+
     // window coordinate origin is bottom left
     NSRect glFrame = NSMakeRect(bounds.origin.x, bounds.origin.y + 30, bounds.size.width, bounds.size.height - 30);
     _glView = [[MpvClientOGLView alloc] initWithFrame:glFrame];
     [self.contentView addSubview:_glView];
+    // 给 MpvClientOGLView 定个大小，加到 contentView 里面去
 
+    // 弄个按钮
     NSRect buttonFrame = NSMakeRect(bounds.origin.x, bounds.origin.y, 60, 30);
     _pauseButton = [[NSButton alloc] initWithFrame:buttonFrame];
     _pauseButton.buttonType = NSToggleButton;
     // button target has to be the delegate (it holds the mpv context
     // pointer), so that's set later.
     _pauseButton.action = @selector(togglePause:);
+    // 定义 action
     _pauseButton.title = @"Pause";
     _pauseButton.alternateTitle = @"Play";
     [self.contentView addSubview:_pauseButton];
